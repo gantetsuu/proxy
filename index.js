@@ -2,6 +2,9 @@ const express = require("express");
 const ytdl = require("ytdl-core");
 const app = express();
 const port = 3000;
+app.get("/", (req, res) => {
+  res.send("🍆");
+});
 app.get("/youtube/:id", async (req, res) => {
   const videoId = req.params.id;
   const url = `https://www.youtube.com/watch?v=${videoId}`;
