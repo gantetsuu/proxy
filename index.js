@@ -21,16 +21,23 @@ app.get("/youtube/:id", async (req, res) => {
       });
   } catch (er) {
     console.error("Error fetching video info:", er);
-    const data = await fetch(
-      `https://m3u8proxy-m3u8proxy.owiwfk.easypanel.host/youtube/${videoId}`
-    );
-    res.setHeader("Content-Type", "video/mp4");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${videoId}.mp4"`
-    );
-    res.setHeader("Content-Length", data.headers.get("Content-Length"));
-    res.status(200).send(data.body);
+    try {
+      const data = await fetch(
+        `https://m3u8proxy-m3u8proxy.owiwfk.easypanel.host/youtube/${videoId}`
+      );
+      res.setHeader("Content-Type", "video/mp4");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${videoId}.mp4"`
+      );
+      if (data.headers.get("Content-Length")) {
+        res.setHeader("Content-Length", data.headers.get("Content-Length"));
+      }
+      res.status(200).send(data.body);
+    } catch (err) {
+      console.log(err?.message);
+      res.status(500).send("internal err");
+    }
   }
 });
 app.listen(port, () => {
