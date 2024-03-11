@@ -10,7 +10,10 @@ app.get("/youtube/:id", async (req, res) => {
   const url = `https://www.youtube.com/watch?v=${videoId}`;
   try {
     const info = await ytdl?.getInfo(url);
-    const format = ytdl?.chooseFormat(info?.formats, { quality: "highest" });
+    const format = ytdl?.chooseFormat(info?.formats, {
+      quality: "highest",
+      filter: "videoandaudio",
+    });
     res.setHeader("Content-Type", "video/mp4");
     res.setHeader(
       "Content-Disposition",
