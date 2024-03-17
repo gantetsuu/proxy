@@ -1,4 +1,5 @@
 const express = require("express");
+const axios = require("axios");
 const ytdl = require("ytdl-core");
 const app = express();
 const port = 3000;
@@ -44,6 +45,25 @@ app.get("/youtube/:id", async (req, res) => {
       console.log(err?.message);
       res.status(500).send("internal err");
     }
+  }
+});
+app.get("kavin/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const u = `https://pipedapi.kavin.rocks/streams/${id}`;
+    const { data } = await axios.get(u);
+    const format =
+      data?.videoStreams?.find(
+        (f) =>
+          (f?.quality === "720p" ||
+            f?.quality === "1080p" ||
+            f?.quality === "480p") &&
+          f?.videoOnly !== true &&
+          f?.mimeType === "video/mp4"
+      )?.url || data?.hls;
+    res.status(200).send(format);
+  } catch (error) {
+    res.status(500).send("internal err");
   }
 });
 app.listen(port, () => {
