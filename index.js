@@ -47,7 +47,7 @@ app.get("/youtube/:id", async (req, res) => {
     }
   }
 });
-app.get("kavin/:id", async (req, res) => {
+app.get("/kavin/:id", async (req, res) => {
   try {
     const id = req.params.id;
     const u = `https://pipedapi.kavin.rocks/streams/${id}`;
@@ -61,7 +61,11 @@ app.get("kavin/:id", async (req, res) => {
           f?.videoOnly !== true &&
           f?.mimeType === "video/mp4"
       )?.url || data?.hls;
-    res.status(200).send(format);
+    if (format) {
+      res.status(200).json({ url: format });
+    } else {
+      res.status(500).send("internal err");
+    }
   } catch (error) {
     res.status(500).send("internal err");
   }
