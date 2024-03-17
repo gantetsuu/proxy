@@ -1,11 +1,28 @@
 const express = require("express");
 const axios = require("axios");
 const ytdl = require("ytdl-core");
+const cors = require("cors");
+const NodeCache = require("node-cache");
+const cache = new NodeCache();
 const app = express();
 const port = 3000;
+app.use(cors());
 app.get("/", (req, res) => {
   res.send("🍆");
 });
+
+const getData = async (url) => {
+  let res = cache.get(url);
+  if (!res) {
+    const { data } = await axios.get(url);
+    if (data) {
+      res = data;
+      cache.set(url, data, 10800);
+    }
+  }
+  return res;
+};
+
 app.get("/youtube/:id", async (req, res) => {
   const videoId = req.params.id;
   const url = `https://www.youtube.com/watch?v=${videoId}`;
@@ -50,8 +67,7 @@ app.get("/youtube/:id", async (req, res) => {
 app.get("/kavin/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const u = `https://pipedapi.kavin.rocks/streams/${id}`;
-    const { data } = await axios.get(u);
+    const data = await getData(`https://pipedapi.kavin.rocks/streams/${id}`);
     const format =
       data?.videoStreams?.find(
         (f) =>
@@ -67,6 +83,7 @@ app.get("/kavin/:id", async (req, res) => {
       res.status(500).send("internal err");
     }
   } catch (error) {
+    console.log(error);
     res.status(500).send("internal err");
   }
 });
